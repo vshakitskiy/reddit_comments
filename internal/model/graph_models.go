@@ -13,12 +13,7 @@ type Comment struct {
 	UpdatedAt time.Time  `json:"updatedAt"`
 	User      *User      `json:"user"`
 	Parent    *Comment   `json:"parent,omitempty"`
-	Replies   []*Comment `json:"replies"`
-}
-
-type CommentConn struct {
-	TotalCount int32      `json:"totalCount"`
-	Comments   []*Comment `json:"comments"`
+	Replies   []*Comment `json:"replies,omitempty"`
 }
 
 type Mutation struct {
@@ -30,14 +25,15 @@ type PaginationInput struct {
 }
 
 type Post struct {
-	ID              string       `json:"id"`
-	Title           string       `json:"title"`
-	Description     string       `json:"description"`
-	CreatedAt       time.Time    `json:"createdAt"`
-	UpdatedAt       time.Time    `json:"updatedAt"`
-	CommentsEnabled bool         `json:"commentsEnabled"`
-	User            *User        `json:"user"`
-	Comments        *CommentConn `json:"comments"`
+	ID              string     `json:"id"`
+	Title           string     `json:"title"`
+	Description     string     `json:"description"`
+	CreatedAt       time.Time  `json:"createdAt"`
+	UpdatedAt       time.Time  `json:"updatedAt"`
+	CommentsEnabled bool       `json:"commentsEnabled"`
+	User            *User      `json:"user"`
+	CommentCount    int32      `json:"commentCount"`
+	Comments        []*Comment `json:"comments,omitempty"`
 }
 
 type Query struct {
@@ -47,8 +43,9 @@ type Subscription struct {
 }
 
 type User struct {
-	ID        string    `json:"id"`
-	Username  string    `json:"username"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID           string    `json:"id"`
+	Username     string    `json:"username"`
+	PasswordHash string    `json:"passwordHash"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }

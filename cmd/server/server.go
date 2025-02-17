@@ -12,6 +12,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
+	"github.com/vshakitskiy/reddit_comments/internal/resolver"
 )
 
 const defaultPort = "8080"
@@ -23,7 +24,7 @@ func main() {
 	}
 
 	srv := handler.New(graph.NewExecutableSchema(
-		graph.Config{Resolvers: &graph.Resolver{}},
+		graph.Config{Resolvers: &resolver.Resolver{}},
 	))
 
 	srv.AddTransport(transport.Options{})
