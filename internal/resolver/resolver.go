@@ -4,9 +4,16 @@ package resolver
 
 import (
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
+	"github.com/vshakitskiy/reddit_comments/internal/service"
 )
 
-type Resolver struct{}
+type Resolver struct {
+	service *service.Service
+}
+
+func NewResolver(service *service.Service) *Resolver {
+	return &Resolver{service: service}
+}
 
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &MutationResolver{r} }

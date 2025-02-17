@@ -15,7 +15,13 @@ func (r *MutationResolver) CreatePost(
 	commentsEnabled bool,
 	userID string,
 ) (*model.Post, error) {
-	panic("not implemented")
+	return r.service.CreatePost(
+		ctx,
+		title,
+		description,
+		commentsEnabled,
+		userID,
+	)
 }
 
 // CreateComment is the resolver for the createComment field.

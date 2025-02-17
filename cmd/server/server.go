@@ -12,7 +12,9 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
+	"github.com/vshakitskiy/reddit_comments/internal/repository"
 	"github.com/vshakitskiy/reddit_comments/internal/resolver"
+	"github.com/vshakitskiy/reddit_comments/internal/service"
 )
 
 const defaultPort = "8080"
@@ -23,8 +25,12 @@ func main() {
 		port = defaultPort
 	}
 
+	repo := repository.NewRepository("inmemory")
+	service := service.NewService(repo)
+	resolver := resolver.NewResolver(service)
+
 	srv := handler.New(graph.NewExecutableSchema(
-		graph.Config{Resolvers: &resolver.Resolver{}},
+		graph.Config{Resolvers: resolver},
 	))
 
 	srv.AddTransport(transport.Options{})

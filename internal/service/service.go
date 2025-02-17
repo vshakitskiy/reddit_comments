@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/vshakitskiy/reddit_comments/internal/model"
 	"github.com/vshakitskiy/reddit_comments/internal/repository"
 )
@@ -43,14 +45,14 @@ type ServiceImpl interface {
 
 type Service struct {
 	ServiceImpl
-	repository *repository.Repository
+	repository repository.Repository
 }
 
 func NewService(
 	repository repository.Repository,
 ) *Service {
 	return &Service{
-		repository: &repository,
+		repository: repository,
 	}
 }
 
@@ -60,7 +62,23 @@ func (s *Service) CreatePost(
 	commentsEnabled bool,
 	userID string,
 ) (*model.Post, error) {
-	panic("not implemented")
+	post := model.Post{
+		ID:              uuid.New().String(),
+		Title:           title,
+		Description:     description,
+		CommentsEnabled: commentsEnabled,
+		User:            nil,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+		CommentCount:    0,
+		Comments:        nil,
+	}
+
+	if post, err := s.repository.CreatePost(ctx, post); err != nil {
+		return nil, err
+	} else {
+		return post, nil
+	}
 }
 
 func (s *Service) GetPostByID(
