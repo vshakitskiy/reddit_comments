@@ -1,0 +1,67 @@
+scalar Time
+
+input PaginationInput {
+  limit: Int!
+  offset: Int!
+}
+
+type User {
+  id: ID!
+  username: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  description: String!
+  createdAt: Time!
+  updatedAt: Time!
+  commentsEnabled: Boolean!
+  user: User!
+  comments(pagination: PaginationInput): CommentConn!
+}
+
+type CommentConn {
+  totalCount: Int!
+  comments: [Comment!]!
+}
+
+type Comment {
+  id: ID!
+  content: String!
+  createdAt: Time!
+  updatedAt: Time!
+  user: User!
+  parent: Comment
+  replies: [Comment!]!
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Query {
+  posts: [Post!]!
+  post(id: ID!): Post
+}
+
+type Mutation {
+  createPost(
+    title: String!,
+    description: String!,
+    commentsEnabled: Boolean!
+  ): Post!
+  createComment(
+    postId: ID!,
+    parentId: ID,
+    content: String!
+  ): Comment!
+}
+
+type Subscription {
+  newComment(postId: ID!): Comment!
+}
