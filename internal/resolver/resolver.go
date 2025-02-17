@@ -15,11 +15,14 @@ func NewResolver(service *service.Service) *Resolver {
 	return &Resolver{service: service}
 }
 
-// Mutation returns graph.MutationResolver implementation.
-func (r *Resolver) Mutation() graph.MutationResolver { return &MutationResolver{r} }
+func (r *Resolver) Mutation() graph.MutationResolver {
+	return &MutationResolver{r}
+}
 
-// Query returns graph.QueryResolver implementation.
-func (r *Resolver) Query() graph.QueryResolver { return &QueryResolver{r} }
+func (r *Resolver) Query() graph.QueryResolver {
+	return &QueryResolver{r}
+}
 
-// Subscription returns graph.SubscriptionResolver implementation.
-func (r *Resolver) Subscription() graph.SubscriptionResolver { return &SubscriptionResolver{r} }
+func (r *Resolver) Subscription() graph.SubscriptionResolver {
+	return &SubscriptionResolver{r}
+}

@@ -10,30 +10,40 @@ import (
 type Repository interface {
 	CreatePost(
 		ctx context.Context,
-		post model.Post,
-	) (*model.Post, error)
+		post model.PostMemory,
+	) (*model.PostMemory, error)
 	GetPostByID(
 		ctx context.Context,
 		id string,
-	) (*model.Post, error)
+	) (*model.PostMemory, error)
 	GetAllPosts(
 		ctx context.Context,
-	) ([]*model.Post, error)
+	) ([]*model.PostMemory, error)
 
 	CreateComment(
 		ctx context.Context,
-		comment model.Comment,
-	) (*model.Comment, error)
+		comment model.CommentMemory,
+	) (*model.CommentMemory, error)
 	GetCommentsByPostID(
 		ctx context.Context,
 		postID string,
 		limit, offset int,
-	) ([]*model.Comment, error)
+	) ([]*model.CommentMemory, error)
 	GetReplies(
 		ctx context.Context,
 		commentID string,
 		limit, offset int,
-	) ([]*model.Comment, error)
+	) ([]*model.CommentMemory, error)
+
+	CreateUser(
+		ctx context.Context,
+		user model.UserMemory,
+	) (*model.UserMemory, error)
+
+	GetUserByID(
+		ctx context.Context,
+		id string,
+	) (*model.UserMemory, error)
 }
 
 func NewRepository(opt string) Repository {

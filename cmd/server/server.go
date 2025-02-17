@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/mux"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
 	"github.com/vshakitskiy/reddit_comments/internal/repository"
@@ -44,9 +45,13 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	r := mux.NewRouter()
+	r.Handle("/", playground.Handler(
+		"GraphQL playground",
+		"/query",
+	))
+	r.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }

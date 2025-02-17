@@ -8,7 +8,7 @@ import (
 
 type SubscriptionResolver struct{ *Resolver }
 
-// NewComment is the resolver for the newComment field.
+// TODO: implement subscription method
 func (r *SubscriptionResolver) NewComment(ctx context.Context, postID string) (<-chan *model.Comment, error) {
 	panic("not implemented")
 }

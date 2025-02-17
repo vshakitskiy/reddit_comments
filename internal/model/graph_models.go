@@ -6,6 +6,16 @@ import (
 	"time"
 )
 
+type AuthInput struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type AuthPayload struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
+}
+
 type Comment struct {
 	ID        string     `json:"id"`
 	Content   string     `json:"content"`

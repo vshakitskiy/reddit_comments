@@ -8,23 +8,20 @@ import (
 
 type MutationResolver struct{ *Resolver }
 
-func (r *MutationResolver) CreatePost(
-	ctx context.Context,
-	title string,
-	description string,
-	commentsEnabled bool,
-	userID string,
-) (*model.Post, error) {
-	return r.service.CreatePost(
-		ctx,
-		title,
-		description,
-		commentsEnabled,
-		userID,
-	)
+// TODO: implement all mutation methods
+
+func (r *MutationResolver) Register(ctx context.Context, cred model.AuthInput) (*model.AuthPayload, error) {
+	panic("not implemented")
 }
 
-// CreateComment is the resolver for the createComment field.
+func (r *MutationResolver) Login(ctx context.Context, cred model.AuthInput) (*model.AuthPayload, error) {
+	panic("not implemented")
+}
+
+func (r *MutationResolver) CreatePost(ctx context.Context, title string, description string, commentsEnabled bool, userID string) (*model.Post, error) {
+	panic("not implemented")
+}
+
 func (r *MutationResolver) CreateComment(ctx context.Context, postID string, parentID *string, content string) (*model.Comment, error) {
 	panic("not implemented")
 }

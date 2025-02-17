@@ -1,8 +1,15 @@
 scalar Time
 
+directive @auth on FIELD_DEFINITION
+
 input PaginationInput {
   limit: Int!
   offset: Int!
+}
+
+input AuthInput {
+  username: String!
+  password: String!
 }
 
 type User {
@@ -11,6 +18,11 @@ type User {
   passwordHash: String!
   createdAt: Time!
   updatedAt: Time!
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
 }
 
 type Post {
@@ -32,8 +44,8 @@ type Comment {
   createdAt: Time!
   updatedAt: Time!
   user: User!
-  parent: Comment
 
+  parent: Comment
   replies(pagination: PaginationInput): [Comment!]
 }
 
@@ -44,24 +56,31 @@ schema {
 }
 
 type Query {
-  posts: [Post!]!
-  post(id: ID!): Post
+  posts: [Post!]! @auth
+  post(id: ID!): Post @auth
 
-  comments(postId: ID!): [Comment!]
-  replies(commentId: ID!): [Comment!]
+  comments(postId: ID!): [Comment!] @auth
+  replies(commentId: ID!): [Comment!] @auth
 }
 
 type Mutation {
+  register(cred: AuthInput!): AuthPayload!
+  login(cred: AuthInput!): AuthPayload!
+
   createPost(
     title: String!
     description: String!
     commentsEnabled: Boolean!
     userId: ID!
-  ): Post!
+  ): Post! @auth
 
-  createComment(postId: ID!, parentId: ID, content: String!): Comment!
+  createComment(
+    postId: ID!,
+    parentId: ID,
+    content: String!
+  ): Comment! @auth
 }
 
 type Subscription {
-  newComment(postId: ID!): Comment!
+  newComment(postId: ID!): Comment! @auth
 }
