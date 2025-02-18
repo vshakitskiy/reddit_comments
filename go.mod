@@ -4,9 +4,11 @@ go 1.23.5
 
 require (
 	github.com/99designs/gqlgen v0.17.66
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/vektah/gqlparser/v2 v2.5.22
+	golang.org/x/crypto v0.33.0
 )
 
 require (

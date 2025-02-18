@@ -12,6 +12,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vshakitskiy/reddit_comments/internal/api/middleware"
+	"github.com/vshakitskiy/reddit_comments/internal/directive"
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
 	"github.com/vshakitskiy/reddit_comments/internal/repository"
 	"github.com/vshakitskiy/reddit_comments/internal/resolver"
@@ -30,9 +32,17 @@ func main() {
 	service := service.NewService(repo)
 	resolver := resolver.NewResolver(service)
 
-	srv := handler.New(graph.NewExecutableSchema(
-		graph.Config{Resolvers: resolver},
-	))
+	r := mux.NewRouter()
+	r.Use(middleware.AuthMiddleware)
+
+	config := graph.Config{
+		Resolvers: resolver,
+		Directives: graph.DirectiveRoot{
+			Auth: directive.Auth,
+		},
+	}
+
+	srv := handler.New(graph.NewExecutableSchema(config))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})
@@ -45,7 +55,6 @@ func main() {
 		Cache: lru.New[string](100),
 	})
 
-	r := mux.NewRouter()
 	r.Handle("/", playground.Handler(
 		"GraphQL playground",
 		"/query",

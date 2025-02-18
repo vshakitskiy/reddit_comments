@@ -11,11 +11,11 @@ type MutationResolver struct{ *Resolver }
 // TODO: implement all mutation methods
 
 func (r *MutationResolver) Register(ctx context.Context, cred model.AuthInput) (*model.AuthPayload, error) {
-	panic("not implemented")
+	return r.service.Register(ctx, cred.Username, cred.Password)
 }
 
 func (r *MutationResolver) Login(ctx context.Context, cred model.AuthInput) (*model.AuthPayload, error) {
-	panic("not implemented")
+	return r.service.Login(ctx, cred.Username, cred.Password)
 }
 
 func (r *MutationResolver) CreatePost(ctx context.Context, title string, description string, commentsEnabled bool, userID string) (*model.Post, error) {

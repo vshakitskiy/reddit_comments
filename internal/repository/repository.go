@@ -39,10 +39,13 @@ type Repository interface {
 		ctx context.Context,
 		user model.UserMemory,
 	) (*model.UserMemory, error)
-
 	GetUserByID(
 		ctx context.Context,
 		id string,
+	) (*model.UserMemory, error)
+	GetUserByUsername(
+		ctx context.Context,
+		username string,
 	) (*model.UserMemory, error)
 }
 

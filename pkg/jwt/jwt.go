@@ -1,4 +1,4 @@
-package service
+package jwt
 
 import (
 	"errors"
@@ -23,7 +23,7 @@ func getSecret() string {
 	return secret
 }
 
-func (s *Service) Generate(id string) (string, error) {
+func Generate(id string) (string, error) {
 	t := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		&JwtCustomClaims{
@@ -43,7 +43,7 @@ func (s *Service) Generate(id string) (string, error) {
 	return token, nil
 }
 
-func (s *Service) Validate(token string) (*jwt.Token, error) {
+func Validate(token string) (*jwt.Token, error) {
 	return jwt.ParseWithClaims(
 		token,
 		&JwtCustomClaims{},
