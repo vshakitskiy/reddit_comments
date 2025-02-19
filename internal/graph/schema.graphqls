@@ -1,23 +1,48 @@
 scalar Time
 
-directive @auth on FIELD_DEFINITION
-
 input PaginationInput {
   limit: Int!
-  offset: Int!
+  page: Int!
 }
 
-input AuthInput {
+input RegisterInput {
   username: String!
+  email: String!
   password: String!
 }
 
-type User {
-  id: ID!
-  username: String!
-  passwordHash: String!
-  createdAt: Time!
-  updatedAt: Time!
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+input PostInput {
+  title: String!
+  description: String!
+  commentsEnabled: Boolean!
+}
+
+input CommentInput {
+  postId: Int!
+  content: String!
+  parentId: Int
+}
+
+type ConnectionMeta {
+  totalRow: Int!
+  totalPages: Int!
+  limit: Int!
+  page: Int!
+}
+
+type PostsConnection {
+  meta: ConnectionMeta
+  rows: [Post!]
+}
+
+type CommentsConnection {
+  meta: ConnectionMeta
+  rows: [Comment!]
 }
 
 type AuthPayload {
@@ -25,28 +50,44 @@ type AuthPayload {
   user: User!
 }
 
+type User {
+  id: ID!
+  username: String!
+  email: String!
+  passwordHash: String!
+
+  createdAt: Time!
+  updatedAt: Time!
+}
+
 type Post {
   id: ID!
   title: String!
   description: String!
+  commentsEnabled: Boolean!
+  totalComments: Int!
+
+  user: User!
+  comments(
+    pagination: PaginationInput!
+  ): CommentsConnection!
+
   createdAt: Time!
   updatedAt: Time!
-  commentsEnabled: Boolean!
-  user: User!
-  commentCount: Int!
-
-  comments(pagination: PaginationInput): [Comment!]
 }
 
 type Comment {
   id: ID!
   content: String!
+
+  user: User!
+  parent: Comment
+  replies(
+    pagination: PaginationInput!
+  ): CommentsConnection!
+
   createdAt: Time!
   updatedAt: Time!
-  user: User!
-
-  parent: Comment
-  replies(pagination: PaginationInput): [Comment!]
 }
 
 schema {
@@ -56,31 +97,31 @@ schema {
 }
 
 type Query {
-  posts: [Post!]! @auth
-  post(id: ID!): Post @auth
-
-  comments(postId: ID!): [Comment!] @auth
-  replies(commentId: ID!): [Comment!] @auth
+  getPosts(
+    pagination: PaginationInput!
+  ): PostsConnection!
+  getPostById(postId: ID!): Post
+  getReplies(
+    commentId: ID!
+  ): CommentsConnection!
 }
 
 type Mutation {
-  register(cred: AuthInput!): AuthPayload!
-  login(cred: AuthInput!): AuthPayload!
+  register(
+    credentials: RegisterInput!
+  ): AuthPayload!
+  login(
+    credentials: LoginInput!
+  ): AuthPayload!
 
   createPost(
-    title: String!
-    description: String!
-    commentsEnabled: Boolean!
-    userId: ID!
-  ): Post! @auth
-
+    input: PostInput!
+  ): Post!
   createComment(
-    postId: ID!,
-    parentId: ID,
-    content: String!
-  ): Comment! @auth
+    input: CommentInput!
+  ): Comment!
 }
 
 type Subscription {
-  newComment(postId: ID!): Comment! @auth
+  newComment(postId: ID!): Comment!
 }

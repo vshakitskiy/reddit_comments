@@ -27,7 +27,7 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: internal/model/graph_models.go
+  filename: internal/model/generated.go
   package: model
 
   # Optional: Pass in a path to a new gotpl template to use for generating the models
@@ -50,7 +50,7 @@ resolver:
   # Optional: Pass in a path to a new gotpl template to use for generating resolvers
   # resolver_template: [your/path/resolver.gotpl]
   # Optional: turn on to avoid rewriting existing resolver(s) when generating
-  preserve_resolver: true
+  # preserve_resolver: true
 
 # Optional: turn on use ` + "`" + `gqlgen:"fieldName"` + "`" + ` tags in your models
 # struct_tag: json
@@ -93,7 +93,7 @@ resolver:
 # skip_validation: true
 
 # Optional: set to skip running `go mod tidy` when generating server code
-# skip_mod_tidy: true
+skip_mod_tidy: true
 
 # Optional: if this is set to true, argument directives that
 # decorate a field with a null value will still be called.
@@ -117,7 +117,7 @@ call_argument_directives_with_null: true
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-#  - "github.com/vshakitskiy/reddit_comments/graph/model"
+  - "github.com/vshakitskiy/reddit_comments/internal/model"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -125,6 +125,21 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  Post:
+    fields:
+      user:
+        resolver: true
+      comments:
+        resolver: true
+  Comment:
+    fields:
+      user:
+        resolver: true
+      parent:
+        resolver: true
+      replies:
+        resolver: true
+
   ID:
     model:
       - github.com/99designs/gqlgen/graphql.ID

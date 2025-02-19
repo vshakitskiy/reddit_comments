@@ -4,13 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/vshakitskiy/reddit_comments/internal/service"
 	"github.com/vshakitskiy/reddit_comments/pkg/jwt"
 )
 
-type authKey string
+type auth string
 
-const ctxKey = authKey("auth")
+const authKey = auth("auth")
 
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(
@@ -24,15 +23,20 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		bearer := "Bearer "
-		token = token[len(bearer):]
+		if len(token) < len(bearer) {
+			next.ServeHTTP(w, r)
+			return
+		}
 
+		token = token[len(bearer):]
 		val, err := jwt.Validate(token)
 		if err != nil || !val.Valid {
-			http.Error(w, "unauthorized", http.StatusForbidden)
+			next.ServeHTTP(w, r)
+			return
 		}
 
 		customClaim, _ := val.Claims.(*jwt.JwtCustomClaims)
-		ctx := context.WithValue(r.Context(), ctxKey, customClaim)
+		ctx := context.WithValue(r.Context(), authKey, customClaim)
 
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
@@ -41,7 +45,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 func ExtractJwtClaims(
 	ctx context.Context,
-) *service.JwtCustomClaims {
-	raw, _ := ctx.Value(ctxKey).(*service.JwtCustomClaims)
+) *jwt.JwtCustomClaims {
+	raw, _ := ctx.Value(authKey).(*jwt.JwtCustomClaims)
 	return raw
 }
