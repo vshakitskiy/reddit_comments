@@ -3,16 +3,16 @@ package model
 import "time"
 
 type Post struct {
-	ID              string `json:"id"`
-	Title           string `json:"title"`
-	Description     string `json:"description"`
+	ID              string `gorm:"primaryKey" json:"id"`
+	Title           string `gorm:"not null" json:"title"`
+	Description     string `gorm:"not null" json:"description"`
 	CommentsEnabled bool   `json:"commentsEnabled"`
 	TotalComments   int    `json:"totalComments"`
-	UserID          string `json:"userId"`
+	UserID          string `gorm:"not null;index" json:"userId"`
 
-	User     *User               `json:"user"`
-	Comments *CommentsConnection `json:"comments"`
+	User     *User               `gorm:"foreignKey:UserID" json:"user"`
+	Comments *CommentsConnection `gorm:"-" json:"comments"`
 
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt time.Time `gorm:"not null" json:"createdAt"`
+	UpdatedAt time.Time `gorm:"not null" json:"updatedAt"`
 }

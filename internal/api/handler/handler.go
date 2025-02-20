@@ -12,15 +12,18 @@ import (
 	"github.com/vshakitskiy/reddit_comments/internal/resolver"
 )
 
-func ApplyHandlers(r *gin.Engine) {
-	r.POST("/query", GraphQLHandler())
+func ApplyHandlers(
+	r *gin.Engine,
+	resolver *resolver.Resolver,
+) {
+	r.POST("/query", GraphQLHandler(resolver))
 	r.GET("/playground", PlaygroundHandler())
 }
 
-func GraphQLHandler() gin.HandlerFunc {
+func GraphQLHandler(resolver *resolver.Resolver) gin.HandlerFunc {
 	h := handler.New(graph.NewExecutableSchema(
 		graph.Config{
-			Resolvers: &resolver.Resolver{},
+			Resolvers: resolver,
 		},
 	))
 
@@ -36,6 +39,7 @@ func GraphQLHandler() gin.HandlerFunc {
 	h.Use(extension.AutomaticPersistedQuery{
 		Cache: lru.New[string](100),
 	})
+	// h.Use(extension.FixedComplexityLimit(1))
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)

@@ -7,9 +7,18 @@ import (
 
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
 	"github.com/vshakitskiy/reddit_comments/internal/model"
+	"github.com/vshakitskiy/reddit_comments/internal/service"
 )
 
-type Resolver struct{}
+type Resolver struct {
+	svc *service.Service
+}
+
+func NewResolver(svc *service.Service) *Resolver {
+	return &Resolver{
+		svc: svc,
+	}
+}
 
 // User is the resolver for the user field.
 func (r *commentResolver) User(ctx context.Context, obj *model.Comment) (*model.User, error) {
@@ -23,16 +32,6 @@ func (r *commentResolver) Parent(ctx context.Context, obj *model.Comment) (*mode
 
 // Replies is the resolver for the replies field.
 func (r *commentResolver) Replies(ctx context.Context, obj *model.Comment, pagination model.PaginationInput) (*model.CommentsConnection, error) {
-	panic("not implemented")
-}
-
-// Register is the resolver for the register field.
-func (r *mutationResolver) Register(ctx context.Context, credentials model.RegisterInput) (*model.AuthPayload, error) {
-	panic("not implemented")
-}
-
-// Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, credentials model.LoginInput) (*model.AuthPayload, error) {
 	panic("not implemented")
 }
 
@@ -97,7 +96,16 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
 
 type commentResolver struct{ *Resolver }
-type mutationResolver struct{ *Resolver }
 type postResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	type Resolver struct{}
+*/

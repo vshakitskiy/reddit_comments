@@ -3,11 +3,11 @@ package model
 import "time"
 
 type User struct {
-	Id           string `json:"id"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	PasswordHash string `json:"password_hash"`
+	Id           string `gorm:"primaryKey" json:"id"`
+	Username     string `gorm:"not null" json:"username"`
+	Email        string `gorm:"unique;not null" json:"email"`
+	PasswordHash string `gorm:"not null" json:"password_hash"`
 
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `gorm:"not null" json:"created_at"`
+	UpdatedAt time.Time `gorm:"not null" json:"updated_at"`
 }
