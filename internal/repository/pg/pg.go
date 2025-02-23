@@ -1,7 +1,10 @@
 package pg
 
 import (
+	"math"
+
 	"github.com/vshakitskiy/reddit_comments/internal/model"
+	"github.com/vshakitskiy/reddit_comments/pkg/pagination"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,4 +30,28 @@ func AutoMigrate(db *gorm.DB) error {
 		&model.Post{},
 		&model.Comment{},
 	)
+}
+
+type paginateCallback func(db *gorm.DB) *gorm.DB
+
+func Paginate(
+	value interface{},
+	pagination *pagination.Pagination,
+	db *gorm.DB,
+) paginateCallback {
+	var totalRows int64
+
+	db.Model(value).Count(&totalRows)
+	pagination.TotalRows = totalRows
+
+	totalPages := int(math.Ceil(
+		float64(totalRows) / float64(pagination.GetLimit()),
+	))
+	pagination.TotalPages = totalPages
+
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Offset(int(pagination.GetOffset())).Limit(
+			int(pagination.GetLimit()),
+		)
+	}
 }

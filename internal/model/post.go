@@ -7,7 +7,7 @@ type Post struct {
 	Title           string `gorm:"not null" json:"title"`
 	Description     string `gorm:"not null" json:"description"`
 	CommentsEnabled bool   `json:"commentsEnabled"`
-	TotalComments   int    `json:"totalComments"`
+	TotalComments   int32  `json:"totalComments"`
 	UserID          string `gorm:"not null;index" json:"userId"`
 
 	User     *User               `gorm:"foreignKey:UserID" json:"user"`

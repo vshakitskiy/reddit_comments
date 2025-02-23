@@ -27,3 +27,16 @@ func (r *Repository) GetUserByEmail(
 
 	return &user, nil
 }
+
+func (r *Repository) GetUserByID(
+	id string,
+) (*model.User, error) {
+	var user model.User
+
+	tx := r.db.Where("id = ?", id).First(&user)
+	if tx.Error != nil {
+		return nil, errors.New("user is not found")
+	}
+
+	return &user, nil
+}

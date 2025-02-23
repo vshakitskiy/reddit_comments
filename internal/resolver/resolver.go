@@ -35,40 +35,35 @@ func (r *commentResolver) Replies(ctx context.Context, obj *model.Comment, pagin
 	panic("not implemented")
 }
 
-// CreatePost is the resolver for the createPost field.
-func (r *mutationResolver) CreatePost(ctx context.Context, input model.PostInput) (*model.Post, error) {
-	panic("not implemented")
-}
+// // TotalRow is the resolver for the totalRow field.
+// func (r *connectionMetaResolver) TotalRow(ctx context.Context, obj *model.ConnectionMeta) (int32, error) {
+// 	panic("not implemented")
+// }
 
-// CreateComment is the resolver for the createComment field.
-func (r *mutationResolver) CreateComment(ctx context.Context, input model.CommentInput) (*model.Comment, error) {
-	panic("not implemented")
-}
+// // TotalPages is the resolver for the totalPages field.
+// func (r *connectionMetaResolver) TotalPages(ctx context.Context, obj *model.ConnectionMeta) (int32, error) {
+// 	panic("not implemented")
+// }
 
-// TotalComments is the resolver for the totalComments field.
-func (r *postResolver) TotalComments(ctx context.Context, obj *model.Post) (int32, error) {
-	panic("not implemented")
-}
+// // Limit is the resolver for the limit field.
+// func (r *connectionMetaResolver) Limit(ctx context.Context, obj *model.ConnectionMeta) (int32, error) {
+// 	panic("not implemented")
+// }
 
-// User is the resolver for the user field.
-func (r *postResolver) User(ctx context.Context, obj *model.Post) (*model.User, error) {
-	panic("not implemented")
-}
+// // Page is the resolver for the page field.
+// func (r *connectionMetaResolver) Page(ctx context.Context, obj *model.ConnectionMeta) (int32, error) {
+// 	panic("not implemented")
+// }
 
-// Comments is the resolver for the comments field.
-func (r *postResolver) Comments(ctx context.Context, obj *model.Post, pagination model.PaginationInput) (*model.CommentsConnection, error) {
-	panic("not implemented")
-}
+// // TotalComments is the resolver for the totalComments field.
+// func (r *postResolver) TotalComments(ctx context.Context, obj *model.Post) (int32, error) {
+// 	panic("not implemented")
+// }
 
-// GetPosts is the resolver for the getPosts field.
-func (r *queryResolver) GetPosts(ctx context.Context, pagination model.PaginationInput) (*model.PostsConnection, error) {
-	panic("not implemented")
-}
-
-// GetPostByID is the resolver for the getPostById field.
-func (r *queryResolver) GetPostByID(ctx context.Context, postID string) (*model.Post, error) {
-	panic("not implemented")
-}
+// // Comments is the resolver for the comments field.
+// func (r *postResolver) Comments(ctx context.Context, obj *model.Post, pagination model.PaginationInput) (*model.CommentsConnection, error) {
+// 	panic("not implemented")
+// }
 
 // GetReplies is the resolver for the getReplies field.
 func (r *queryResolver) GetReplies(ctx context.Context, commentID string) (*model.CommentsConnection, error) {
@@ -83,11 +78,14 @@ func (r *subscriptionResolver) NewComment(ctx context.Context, postID string) (<
 // Comment returns graph.CommentResolver implementation.
 func (r *Resolver) Comment() graph.CommentResolver { return &commentResolver{r} }
 
+// // ConnectionMeta returns graph.ConnectionMetaResolver implementation.
+// func (r *Resolver) ConnectionMeta() graph.ConnectionMetaResolver { return &connectionMetaResolver{r} }
+
 // Mutation returns graph.MutationResolver implementation.
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
-// Post returns graph.PostResolver implementation.
-func (r *Resolver) Post() graph.PostResolver { return &postResolver{r} }
+// // Post returns graph.PostResolver implementation.
+// func (r *Resolver) Post() graph.PostResolver { return &postResolver{r} }
 
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
@@ -96,8 +94,10 @@ func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
 func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
 
 type commentResolver struct{ *Resolver }
-type postResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
+
+// type connectionMetaResolver struct{ *Resolver }
+
+// type postResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
 
 // !!! WARNING !!!
@@ -107,5 +107,8 @@ type subscriptionResolver struct{ *Resolver }
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
 /*
-	type Resolver struct{}
+
+func (r *postResolver) User(ctx context.Context, obj *model.Post) (*model.User, error) {
+	panic("not implemented")
+}
 */

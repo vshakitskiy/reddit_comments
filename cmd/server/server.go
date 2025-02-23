@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/vshakitskiy/reddit_comments/internal/api/handler"
 	"github.com/vshakitskiy/reddit_comments/internal/api/middleware"
@@ -13,13 +15,14 @@ import (
 func main() {
 	db, err := pg.CreateDB()
 	if err != nil {
-		panic(err)
+		os.Exit(1)
 	}
 	repo := repository.NewRepository(db)
 	svc := service.NewService(repo)
 	resolver := resolver.NewResolver(svc)
 
 	r := gin.Default()
+	r.Use(middleware.AuthMiddleware())
 	r.Use(middleware.GinCtxToCtxMiddleware())
 	handler.ApplyHandlers(r, resolver)
 

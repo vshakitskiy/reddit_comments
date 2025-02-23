@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 
+	"github.com/vshakitskiy/reddit_comments/internal/api/middleware"
 	"github.com/vshakitskiy/reddit_comments/internal/model"
 )
 
@@ -20,4 +21,19 @@ func (r *mutationResolver) Login(
 	credentials model.LoginInput,
 ) (*model.AuthPayload, error) {
 	return r.svc.Login(credentials)
+}
+
+func (r *mutationResolver) CreatePost(
+	ctx context.Context,
+	input model.PostInput,
+) (*model.Post, error) {
+	id := middleware.ExtractUserID(ctx)
+	return r.svc.CreatePost(input, id)
+}
+
+func (r *mutationResolver) CreateComment(
+	ctx context.Context,
+	input model.CommentInput,
+) (*model.Comment, error) {
+	panic("not implemented")
 }

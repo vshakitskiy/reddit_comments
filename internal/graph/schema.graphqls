@@ -1,4 +1,7 @@
+scalar Int64
 scalar Time
+
+directive @auth on FIELD_DEFINITION
 
 input PaginationInput {
   limit: Int!
@@ -23,9 +26,9 @@ input PostInput {
 }
 
 input CommentInput {
-  postId: Int!
+  postId: ID!
   content: String!
-  parentId: Int
+  parentId: ID
 }
 
 type ConnectionMeta {
@@ -99,11 +102,11 @@ schema {
 type Query {
   getPosts(
     pagination: PaginationInput!
-  ): PostsConnection!
-  getPostById(postId: ID!): Post
+  ): PostsConnection! @auth
+  getPostById(postId: ID!): Post @auth
   getReplies(
     commentId: ID!
-  ): CommentsConnection!
+  ): CommentsConnection! @auth
 }
 
 type Mutation {
@@ -116,12 +119,12 @@ type Mutation {
 
   createPost(
     input: PostInput!
-  ): Post!
+  ): Post! @auth
   createComment(
     input: CommentInput!
-  ): Comment!
+  ): Comment! @auth
 }
 
 type Subscription {
-  newComment(postId: ID!): Comment!
+  newComment(postId: ID!): Comment! @auth
 }

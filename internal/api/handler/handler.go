@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/vektah/gqlparser/v2/ast"
+	"github.com/vshakitskiy/reddit_comments/internal/directive"
 	"github.com/vshakitskiy/reddit_comments/internal/graph"
 	"github.com/vshakitskiy/reddit_comments/internal/resolver"
 )
@@ -24,6 +25,9 @@ func GraphQLHandler(resolver *resolver.Resolver) gin.HandlerFunc {
 	h := handler.New(graph.NewExecutableSchema(
 		graph.Config{
 			Resolvers: resolver,
+			Directives: graph.DirectiveRoot{
+				Auth: directive.Auth,
+			},
 		},
 	))
 

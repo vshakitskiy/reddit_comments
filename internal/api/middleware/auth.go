@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"context"
-	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/vshakitskiy/reddit_comments/pkg/jwt"
 )
 
@@ -11,36 +11,33 @@ type auth string
 
 const authKey = auth("auth")
 
-func AuthMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(
-		w http.ResponseWriter,
-		r *http.Request,
-	) {
-		token := r.Header.Get("Authorization")
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
 		if token == "" {
-			next.ServeHTTP(w, r)
+			c.Next()
 			return
 		}
 
 		bearer := "Bearer "
 		if len(token) < len(bearer) {
-			next.ServeHTTP(w, r)
+			c.Next()
 			return
 		}
 
 		token = token[len(bearer):]
 		val, err := jwt.Validate(token)
 		if err != nil || !val.Valid {
-			next.ServeHTTP(w, r)
+			c.Next()
 			return
 		}
 
 		customClaim, _ := val.Claims.(*jwt.JwtCustomClaims)
-		ctx := context.WithValue(r.Context(), authKey, customClaim)
+		ctx := context.WithValue(c.Request.Context(), authKey, customClaim)
 
-		r = r.WithContext(ctx)
-		next.ServeHTTP(w, r)
-	})
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
+	}
 }
 
 func ExtractJwtClaims(
@@ -48,4 +45,10 @@ func ExtractJwtClaims(
 ) *jwt.JwtCustomClaims {
 	raw, _ := ctx.Value(authKey).(*jwt.JwtCustomClaims)
 	return raw
+}
+
+func ExtractUserID(
+	ctx context.Context,
+) string {
+	return ExtractJwtClaims(ctx).ID
 }
