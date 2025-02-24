@@ -1,17 +1,8 @@
 package model
 
-import "github.com/vshakitskiy/reddit_comments/pkg/pagination"
-
 type LoginInput struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
-}
-
-func (p *PaginationInput) ToPagination() pagination.Pagination {
-	return pagination.Pagination{
-		Limit: p.Limit,
-		Page:  p.Page,
-	}
 }
 
 type PostInput struct {

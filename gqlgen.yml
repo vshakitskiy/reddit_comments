@@ -125,6 +125,10 @@ autobind:
 # modelgen, the others will be allowed when binding to fields. Configure them to
 # your liking
 models:
+  Post:
+    fields:
+      user:
+        resolver: true
   Comment:
     fields:
       user:

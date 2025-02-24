@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vshakitskiy/reddit_comments/internal/api/handler"
 	"github.com/vshakitskiy/reddit_comments/internal/api/middleware"
+	"github.com/vshakitskiy/reddit_comments/internal/dataloader"
 	"github.com/vshakitskiy/reddit_comments/internal/repository"
 	"github.com/vshakitskiy/reddit_comments/internal/repository/pg"
 	"github.com/vshakitskiy/reddit_comments/internal/resolver"
@@ -23,6 +24,7 @@ func main() {
 
 	r := gin.Default()
 	r.Use(middleware.AuthMiddleware())
+	r.Use(dataloader.Middleware(repo))
 	r.Use(middleware.GinCtxToCtxMiddleware())
 	handler.ApplyHandlers(r, resolver)
 

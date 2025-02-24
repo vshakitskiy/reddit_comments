@@ -11,11 +11,6 @@ type CommentInput struct {
 type Mutation struct {
 }
 
-type PaginationInput struct {
-	Limit int32 `json:"limit"`
-	Page  int32 `json:"page"`
-}
-
 type Query struct {
 }
 

@@ -14,7 +14,7 @@ func (r *Repository) GetPosts(
 ) (*model.PostsConnection, error) {
 	var posts []*model.Post
 
-	tx := r.db.Preload("User").Scopes(pg.Paginate(
+	tx := r.db.Scopes(pg.Paginate(
 		posts,
 		&pagination,
 		r.db,
@@ -24,23 +24,18 @@ func (r *Repository) GetPosts(
 		return nil, errors.New("unable to get posts")
 	}
 
-	meta := model.ConnectionMeta{
-		Limit:      pagination.GetLimit(),
-		Page:       pagination.GetPage(),
-		TotalRow:   int32(pagination.TotalRows),
-		TotalPages: int32(pagination.TotalPages),
-	}
+	meta := model.PaginationToConnectionMeta(pagination)
 
 	return &model.PostsConnection{
 		Rows: posts,
-		Meta: &meta,
+		Meta: meta,
 	}, nil
 }
 
 func (r *Repository) GetPostByID(postID string) (*model.Post, error) {
 	var post model.Post
 
-	tx := r.db.Preload("User").First(&post, "id = ?", postID)
+	tx := r.db.First(&post, "id = ?", postID)
 	if tx.Error != nil {
 		if tx.Error == gorm.ErrRecordNotFound {
 			return nil, errors.New("post is not found")

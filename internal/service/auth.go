@@ -22,7 +22,7 @@ func (s *Service) Register(
 	passwordHash := bcrypt.Hash(credentials.Password)
 
 	user := &model.User{
-		Id:           uuid.New().String(),
+		ID:           uuid.New().String(),
 		Username:     credentials.Username,
 		Email:        credentials.Email,
 		PasswordHash: passwordHash,
@@ -34,7 +34,7 @@ func (s *Service) Register(
 		return nil, err
 	}
 
-	token, err := jwt.Generate(user.Id)
+	token, err := jwt.Generate(user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (s *Service) Login(
 		return nil, errors.New("invalid credentials")
 	}
 
-	token, err := jwt.Generate(user.Id)
+	token, err := jwt.Generate(user.ID)
 	if err != nil {
 		return nil, err
 	}

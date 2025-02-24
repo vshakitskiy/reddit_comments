@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 
 	"github.com/vshakitskiy/reddit_comments/internal/model"
@@ -39,4 +40,23 @@ func (r *Repository) GetUserByID(
 	}
 
 	return &user, nil
+}
+
+func (r *Repository) GetUsersByIDs(
+	_ context.Context,
+	ids []string,
+) ([]*model.User, []error) {
+	var users []*model.User
+
+	tx := r.db.Where("id IN ?", ids).Find(&users)
+	if tx.Error != nil {
+		return nil, []error{tx.Error}
+	}
+
+	users, err := onIdOrder(ids, users)
+	if err != nil {
+		return nil, []error{err}
+	}
+
+	return users, nil
 }

@@ -85,7 +85,7 @@ func (r *Resolver) Comment() graph.CommentResolver { return &commentResolver{r} 
 func (r *Resolver) Mutation() graph.MutationResolver { return &mutationResolver{r} }
 
 // // Post returns graph.PostResolver implementation.
-// func (r *Resolver) Post() graph.PostResolver { return &postResolver{r} }
+func (r *Resolver) Post() graph.PostResolver { return &postResolver{r} }
 
 // Query returns graph.QueryResolver implementation.
 func (r *Resolver) Query() graph.QueryResolver { return &queryResolver{r} }
@@ -97,7 +97,6 @@ type commentResolver struct{ *Resolver }
 
 // type connectionMetaResolver struct{ *Resolver }
 
-// type postResolver struct{ *Resolver }
 type subscriptionResolver struct{ *Resolver }
 
 // !!! WARNING !!!
@@ -106,9 +105,3 @@ type subscriptionResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-
-func (r *postResolver) User(ctx context.Context, obj *model.Post) (*model.User, error) {
-	panic("not implemented")
-}
-*/
