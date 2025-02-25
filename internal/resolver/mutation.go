@@ -4,10 +4,15 @@ import (
 	"context"
 
 	"github.com/vshakitskiy/reddit_comments/internal/api/middleware"
+	"github.com/vshakitskiy/reddit_comments/internal/graph"
 	"github.com/vshakitskiy/reddit_comments/internal/model"
 )
 
 type mutationResolver struct{ *Resolver }
+
+func (r *Resolver) Mutation() graph.MutationResolver {
+	return &mutationResolver{r}
+}
 
 func (r *mutationResolver) Register(
 	ctx context.Context,
@@ -35,5 +40,6 @@ func (r *mutationResolver) CreateComment(
 	ctx context.Context,
 	input model.CommentInput,
 ) (*model.Comment, error) {
-	panic("not implemented")
+	id := middleware.ExtractUserID(ctx)
+	return r.svc.CreateComment(input, id)
 }

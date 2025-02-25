@@ -14,10 +14,14 @@ func (r *Repository) GetPosts(
 ) (*model.PostsConnection, error) {
 	var posts []*model.Post
 
+	var totalRows int64
+	r.db.Model(&model.Post{}).Count(&totalRows)
+
 	tx := r.db.Scopes(pg.Paginate(
 		posts,
 		&pagination,
 		r.db,
+		totalRows,
 	)).Find(&posts)
 
 	if tx.Error != nil {

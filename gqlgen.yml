@@ -129,6 +129,8 @@ models:
     fields:
       user:
         resolver: true
+      comments:
+        resolver: true
   Comment:
     fields:
       user:

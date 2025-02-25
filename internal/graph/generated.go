@@ -107,7 +107,7 @@ type ComplexityRoot struct {
 	Query struct {
 		GetPostByID func(childComplexity int, postID string) int
 		GetPosts    func(childComplexity int, pagination model.PaginationInput) int
-		GetReplies  func(childComplexity int, commentID string) int
+		GetReplies  func(childComplexity int, commentID string, pagination model.PaginationInput) int
 	}
 
 	Subscription struct {
@@ -117,7 +117,7 @@ type ComplexityRoot struct {
 	User struct {
 		CreatedAt    func(childComplexity int) int
 		Email        func(childComplexity int) int
-		Id           func(childComplexity int) int
+		ID           func(childComplexity int) int
 		PasswordHash func(childComplexity int) int
 		UpdatedAt    func(childComplexity int) int
 		Username     func(childComplexity int) int
@@ -137,11 +137,12 @@ type MutationResolver interface {
 }
 type PostResolver interface {
 	User(ctx context.Context, obj *model.Post) (*model.User, error)
+	Comments(ctx context.Context, obj *model.Post, pagination model.PaginationInput) (*model.CommentsConnection, error)
 }
 type QueryResolver interface {
 	GetPosts(ctx context.Context, pagination model.PaginationInput) (*model.PostsConnection, error)
 	GetPostByID(ctx context.Context, postID string) (*model.Post, error)
-	GetReplies(ctx context.Context, commentID string) (*model.CommentsConnection, error)
+	GetReplies(ctx context.Context, commentID string, pagination model.PaginationInput) (*model.CommentsConnection, error)
 }
 type SubscriptionResolver interface {
 	NewComment(ctx context.Context, postID string) (<-chan *model.Comment, error)
@@ -440,7 +441,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetReplies(childComplexity, args["commentId"].(string)), true
+		return e.complexity.Query.GetReplies(childComplexity, args["commentId"].(string), args["pagination"].(model.PaginationInput)), true
 
 	case "Subscription.newComment":
 		if e.complexity.Subscription.NewComment == nil {
@@ -469,11 +470,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.User.Email(childComplexity), true
 
 	case "User.id":
-		if e.complexity.User.Id == nil {
+		if e.complexity.User.ID == nil {
 			break
 		}
 
-		return e.complexity.User.Id(childComplexity), true
+		return e.complexity.User.ID(childComplexity), true
 
 	case "User.passwordHash":
 		if e.complexity.User.PasswordHash == nil {
@@ -857,6 +858,11 @@ func (ec *executionContext) field_Query_getReplies_args(ctx context.Context, raw
 		return nil, err
 	}
 	args["commentId"] = arg0
+	arg1, err := ec.field_Query_getReplies_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg1
 	return args, nil
 }
 func (ec *executionContext) field_Query_getReplies_argsCommentID(
@@ -869,6 +875,19 @@ func (ec *executionContext) field_Query_getReplies_argsCommentID(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getReplies_argsPagination(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.PaginationInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+	if tmp, ok := rawArgs["pagination"]; ok {
+		return ec.unmarshalNPaginationInput2githubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐPaginationInput(ctx, tmp)
+	}
+
+	var zeroVal model.PaginationInput
 	return zeroVal, nil
 }
 
@@ -2337,7 +2356,7 @@ func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Comments, nil
+		return ec.resolvers.Post().Comments(rctx, obj, fc.Args["pagination"].(model.PaginationInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2358,8 +2377,8 @@ func (ec *executionContext) fieldContext_Post_comments(ctx context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Post",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "meta":
@@ -2776,7 +2795,7 @@ func (ec *executionContext) _Query_getReplies(ctx context.Context, field graphql
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		directive0 := func(rctx context.Context) (any, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().GetReplies(rctx, fc.Args["commentId"].(string))
+			return ec.resolvers.Query().GetReplies(rctx, fc.Args["commentId"].(string), fc.Args["pagination"].(model.PaginationInput))
 		}
 
 		directive1 := func(ctx context.Context) (any, error) {
@@ -5934,10 +5953,41 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "comments":
-			out.Values[i] = ec._Post_comments(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Post_comments(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._Post_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

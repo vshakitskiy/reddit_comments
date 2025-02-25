@@ -106,6 +106,7 @@ type Query {
   getPostById(postId: ID!): Post @auth
   getReplies(
     commentId: ID!
+    pagination: PaginationInput!
   ): CommentsConnection! @auth
 }
 

@@ -34,14 +34,14 @@ func AutoMigrate(db *gorm.DB) error {
 
 type paginateCallback func(db *gorm.DB) *gorm.DB
 
+
+
 func Paginate(
 	value interface{},
 	pagination *pagination.Pagination,
 	db *gorm.DB,
+	totalRows int64,
 ) paginateCallback {
-	var totalRows int64
-
-	db.Model(value).Count(&totalRows)
 	pagination.TotalRows = totalRows
 
 	totalPages := int(math.Ceil(

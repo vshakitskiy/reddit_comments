@@ -2,7 +2,6 @@ package dataloader
 
 import (
 	"context"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vikstrous/dataloadgen"
@@ -15,15 +14,14 @@ type dataloader string
 const dataloaderKey = dataloader("dataloader")
 
 type Loader struct {
-	UserLoader *dataloadgen.Loader[string, *model.User]
+	UserLoader   *dataloadgen.Loader[string, *model.User]
+	ParentLoader *dataloadgen.Loader[string, *model.Comment]
 }
 
 func NewLoader(repo *repository.Repository) *Loader {
 	return &Loader{
-		UserLoader: dataloadgen.NewLoader(
-			repo.GetUsersByIDs,
-			dataloadgen.WithWait(time.Millisecond),
-		),
+		UserLoader:   NewUserLoader(repo),
+		ParentLoader: NewParentLoader(repo),
 	}
 }
 
