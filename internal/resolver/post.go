@@ -19,5 +19,9 @@ func (r *postResolver) User(ctx context.Context, obj *model.Post) (*model.User, 
 }
 
 func (r *postResolver) Comments(ctx context.Context, obj *model.Post, pagination model.PaginationInput) (*model.CommentsConnection, error) {
+	if !obj.CommentsEnabled {
+		return nil, nil
+	}
+
 	return r.svc.GetComments(pagination, obj.ID)
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/vshakitskiy/reddit_comments/internal/api/handler"
 	"github.com/vshakitskiy/reddit_comments/internal/api/middleware"
 	"github.com/vshakitskiy/reddit_comments/internal/dataloader"
+	"github.com/vshakitskiy/reddit_comments/internal/pubsub"
 	"github.com/vshakitskiy/reddit_comments/internal/repository"
 	"github.com/vshakitskiy/reddit_comments/internal/repository/pg"
 	"github.com/vshakitskiy/reddit_comments/internal/resolver"
@@ -18,8 +19,9 @@ func main() {
 	if err != nil {
 		os.Exit(1)
 	}
+	commentPubSub := pubsub.NewCommentPubSub()
 	repo := repository.NewRepository(db)
-	svc := service.NewService(repo)
+	svc := service.NewService(repo, commentPubSub)
 	resolver := resolver.NewResolver(svc)
 
 	r := gin.Default()

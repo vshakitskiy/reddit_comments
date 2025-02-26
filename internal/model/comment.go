@@ -8,6 +8,7 @@ type Comment struct {
 	UserID   string  `gorm:"not null;index" json:"userId"`
 	ParentID *string `gorm:"index" json:"parentId,omitempty"`
 	PostID   string  `gorm:"not null;index" json:"postId"`
+	TotalReplies int32 `gorm:"not null" json:"total_replies"`
 
 	User    *User               `gorm:"-" json:"user"`
 	Parent  *Comment            `gorm:"foreignKey:ParentID" json:"parent,omitempty"`

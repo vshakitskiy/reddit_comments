@@ -60,3 +60,11 @@ func (r *Repository) CreatePost(
 
 	return nil
 }
+
+func (r *Repository) IncrementCommentCount(postID string) error {
+	tx := r.db.Model(&model.Post{}).Where("id = ?", postID).Update("total_comments", gorm.Expr("total_comments + 1"))
+	if tx.Error != nil {
+		return errors.New("unable to increment comment count")
+	}
+	return nil
+}

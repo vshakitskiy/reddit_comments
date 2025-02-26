@@ -59,13 +59,14 @@ type ComplexityRoot struct {
 	}
 
 	Comment struct {
-		Content   func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Parent    func(childComplexity int) int
-		Replies   func(childComplexity int, pagination model.PaginationInput) int
-		UpdatedAt func(childComplexity int) int
-		User      func(childComplexity int) int
+		Content      func(childComplexity int) int
+		CreatedAt    func(childComplexity int) int
+		ID           func(childComplexity int) int
+		Parent       func(childComplexity int) int
+		Replies      func(childComplexity int, pagination model.PaginationInput) int
+		TotalReplies func(childComplexity int) int
+		UpdatedAt    func(childComplexity int) int
+		User         func(childComplexity int) int
 	}
 
 	CommentsConnection struct {
@@ -105,6 +106,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		GetComments func(childComplexity int, postID string, pagination model.PaginationInput) int
 		GetPostByID func(childComplexity int, postID string) int
 		GetPosts    func(childComplexity int, pagination model.PaginationInput) int
 		GetReplies  func(childComplexity int, commentID string, pagination model.PaginationInput) int
@@ -142,6 +144,7 @@ type PostResolver interface {
 type QueryResolver interface {
 	GetPosts(ctx context.Context, pagination model.PaginationInput) (*model.PostsConnection, error)
 	GetPostByID(ctx context.Context, postID string) (*model.Post, error)
+	GetComments(ctx context.Context, postID string, pagination model.PaginationInput) (*model.CommentsConnection, error)
 	GetReplies(ctx context.Context, commentID string, pagination model.PaginationInput) (*model.CommentsConnection, error)
 }
 type SubscriptionResolver interface {
@@ -220,6 +223,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Comment.Replies(childComplexity, args["pagination"].(model.PaginationInput)), true
+
+	case "Comment.totalReplies":
+		if e.complexity.Comment.TotalReplies == nil {
+			break
+		}
+
+		return e.complexity.Comment.TotalReplies(childComplexity), true
 
 	case "Comment.updatedAt":
 		if e.complexity.Comment.UpdatedAt == nil {
@@ -406,6 +416,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.PostsConnection.Rows(childComplexity), true
+
+	case "Query.getComments":
+		if e.complexity.Query.GetComments == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getComments_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetComments(childComplexity, args["postId"].(string), args["pagination"].(model.PaginationInput)), true
 
 	case "Query.getPostById":
 		if e.complexity.Query.GetPostByID == nil {
@@ -801,6 +823,47 @@ func (ec *executionContext) field_Query___type_argsName(
 	}
 
 	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getComments_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := ec.field_Query_getComments_argsPostID(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["postId"] = arg0
+	arg1, err := ec.field_Query_getComments_argsPagination(ctx, rawArgs)
+	if err != nil {
+		return nil, err
+	}
+	args["pagination"] = arg1
+	return args, nil
+}
+func (ec *executionContext) field_Query_getComments_argsPostID(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (string, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("postId"))
+	if tmp, ok := rawArgs["postId"]; ok {
+		return ec.unmarshalNID2string(ctx, tmp)
+	}
+
+	var zeroVal string
+	return zeroVal, nil
+}
+
+func (ec *executionContext) field_Query_getComments_argsPagination(
+	ctx context.Context,
+	rawArgs map[string]any,
+) (model.PaginationInput, error) {
+	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("pagination"))
+	if tmp, ok := rawArgs["pagination"]; ok {
+		return ec.unmarshalNPaginationInput2githubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐPaginationInput(ctx, tmp)
+	}
+
+	var zeroVal model.PaginationInput
 	return zeroVal, nil
 }
 
@@ -1204,6 +1267,50 @@ func (ec *executionContext) fieldContext_Comment_content(_ context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Comment_totalReplies(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Comment_totalReplies(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TotalReplies, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int32)
+	fc.Result = res
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Comment_totalReplies(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Comment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Comment_user(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_user(ctx, field)
 	if err != nil {
@@ -1302,6 +1409,8 @@ func (ec *executionContext) fieldContext_Comment_parent(_ context.Context, field
 				return ec.fieldContext_Comment_id(ctx, field)
 			case "content":
 				return ec.fieldContext_Comment_content(ctx, field)
+			case "totalReplies":
+				return ec.fieldContext_Comment_totalReplies(ctx, field)
 			case "user":
 				return ec.fieldContext_Comment_user(ctx, field)
 			case "parent":
@@ -1559,6 +1668,8 @@ func (ec *executionContext) fieldContext_CommentsConnection_rows(_ context.Conte
 				return ec.fieldContext_Comment_id(ctx, field)
 			case "content":
 				return ec.fieldContext_Comment_content(ctx, field)
+			case "totalReplies":
+				return ec.fieldContext_Comment_totalReplies(ctx, field)
 			case "user":
 				return ec.fieldContext_Comment_user(ctx, field)
 			case "parent":
@@ -2036,6 +2147,8 @@ func (ec *executionContext) fieldContext_Mutation_createComment(ctx context.Cont
 				return ec.fieldContext_Comment_id(ctx, field)
 			case "content":
 				return ec.fieldContext_Comment_content(ctx, field)
+			case "totalReplies":
+				return ec.fieldContext_Comment_totalReplies(ctx, field)
 			case "user":
 				return ec.fieldContext_Comment_user(ctx, field)
 			case "parent":
@@ -2363,14 +2476,11 @@ func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.CommentsConnection)
 	fc.Result = res
-	return ec.marshalNCommentsConnection2ᚖgithubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐCommentsConnection(ctx, field.Selections, res)
+	return ec.marshalOCommentsConnection2ᚖgithubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐCommentsConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Post_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2780,6 +2890,89 @@ func (ec *executionContext) fieldContext_Query_getPostById(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_getComments(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getComments(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
+		directive0 := func(rctx context.Context) (any, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().GetComments(rctx, fc.Args["postId"].(string), fc.Args["pagination"].(model.PaginationInput))
+		}
+
+		directive1 := func(ctx context.Context) (any, error) {
+			if ec.directives.Auth == nil {
+				var zeroVal *model.CommentsConnection
+				return zeroVal, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.CommentsConnection); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/vshakitskiy/reddit_comments/internal/model.CommentsConnection`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CommentsConnection)
+	fc.Result = res
+	return ec.marshalNCommentsConnection2ᚖgithubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐCommentsConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getComments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "meta":
+				return ec.fieldContext_CommentsConnection_meta(ctx, field)
+			case "rows":
+				return ec.fieldContext_CommentsConnection_rows(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type CommentsConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getComments_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_getReplies(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_getReplies(ctx, field)
 	if err != nil {
@@ -3073,6 +3266,8 @@ func (ec *executionContext) fieldContext_Subscription_newComment(ctx context.Con
 				return ec.fieldContext_Comment_id(ctx, field)
 			case "content":
 				return ec.fieldContext_Comment_content(ctx, field)
+			case "totalReplies":
+				return ec.fieldContext_Comment_totalReplies(ctx, field)
 			case "user":
 				return ec.fieldContext_Comment_user(ctx, field)
 			case "parent":
@@ -5580,6 +5775,11 @@ func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "totalReplies":
+			out.Values[i] = ec._Comment_totalReplies(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "user":
 			field := field
 
@@ -5955,16 +6155,13 @@ func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj
 		case "comments":
 			field := field
 
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
 				defer func() {
 					if r := recover(); r != nil {
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
 				res = ec._Post_comments(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -6110,6 +6307,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_getPostById(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "getComments":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getComments(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -7106,6 +7325,13 @@ func (ec *executionContext) marshalOComment2ᚖgithubᚗcomᚋvshakitskiyᚋredd
 		return graphql.Null
 	}
 	return ec._Comment(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCommentsConnection2ᚖgithubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐCommentsConnection(ctx context.Context, sel ast.SelectionSet, v *model.CommentsConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._CommentsConnection(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOConnectionMeta2ᚖgithubᚗcomᚋvshakitskiyᚋreddit_commentsᚋinternalᚋmodelᚐConnectionMeta(ctx context.Context, sel ast.SelectionSet, v *model.ConnectionMeta) graphql.Marshaler {

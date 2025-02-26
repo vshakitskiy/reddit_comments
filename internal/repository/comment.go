@@ -7,6 +7,7 @@ import (
 	"github.com/vshakitskiy/reddit_comments/internal/model"
 	"github.com/vshakitskiy/reddit_comments/internal/repository/pg"
 	"github.com/vshakitskiy/reddit_comments/pkg/pagination"
+	"gorm.io/gorm"
 )
 
 func (r *Repository) CreateComment(comment *model.Comment) error {
@@ -51,17 +52,15 @@ func (r *Repository) GetCommentsByIDs(
 func (r *Repository) GetReplies(
 	pagination pagination.Pagination,
 	parentID string,
+	totalReplies int64,
 ) (*model.CommentsConnection, error) {
 	var comments []*model.Comment
-	var totalRows int64
-
-	r.db.Model(&model.Comment{}).Where("parent_id = ?", parentID).Count(&totalRows)
 
 	tx := r.db.Scopes(pg.Paginate(
 		comments,
 		&pagination,
 		r.db,
-		totalRows,
+		totalReplies,
 	)).Where("parent_id = ?", parentID).Find(&comments)
 
 	if tx.Error != nil {
@@ -79,17 +78,15 @@ func (r *Repository) GetReplies(
 func (r *Repository) GetComments(
 	pagination pagination.Pagination,
 	postID string,
+	totalComments int64,
 ) (*model.CommentsConnection, error) {
 	var comments []*model.Comment
-	var totalRows int64
-
-	r.db.Model(&model.Comment{}).Where("post_id = ?", postID).Where("parent_id IS NULL").Count(&totalRows)
 
 	tx := r.db.Scopes(pg.Paginate(
 		comments,
 		&pagination,
 		r.db,
-		totalRows,
+		totalComments,
 	)).Where("post_id = ?", postID).Where("parent_id IS NULL").Find(&comments)
 
 	if tx.Error != nil {
@@ -102,4 +99,20 @@ func (r *Repository) GetComments(
 		Rows: comments,
 		Meta: meta,
 	}, nil
+}
+
+func (r *Repository) CountComments(postID string, totalRows *int64) {
+	r.db.Model(&model.Comment{}).Where("post_id = ?", postID).Where("parent_id IS NULL").Count(totalRows)
+}
+
+func (r *Repository) CountReplies(parentID string, totalRows *int64) {
+	r.db.Model(&model.Comment{}).Where("parent_id = ?", parentID).Count(totalRows)
+}
+
+func (r *Repository) IncrementRepliesCount(parentID string) error {
+	tx := r.db.Model(&model.Comment{}).Where("id = ?", parentID).Update("total_replies", gorm.Expr("total_replies + 1"))
+	if tx.Error != nil {
+		return errors.New("unable to increment replies count")
+	}
+	return nil
 }

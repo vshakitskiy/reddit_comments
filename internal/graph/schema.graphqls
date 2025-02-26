@@ -73,7 +73,7 @@ type Post {
   user: User!
   comments(
     pagination: PaginationInput!
-  ): CommentsConnection!
+  ): CommentsConnection
 
   createdAt: Time!
   updatedAt: Time!
@@ -82,6 +82,7 @@ type Post {
 type Comment {
   id: ID!
   content: String!
+  totalReplies: Int!
 
   user: User!
   parent: Comment
@@ -104,6 +105,10 @@ type Query {
     pagination: PaginationInput!
   ): PostsConnection! @auth
   getPostById(postId: ID!): Post @auth
+  getComments(
+    postId: ID!
+    pagination: PaginationInput!
+  ): CommentsConnection! @auth
   getReplies(
     commentId: ID!
     pagination: PaginationInput!

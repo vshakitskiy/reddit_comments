@@ -28,6 +28,9 @@ func (r *queryResolver) GetPostByID(
 }
 
 func (r *queryResolver) GetReplies(ctx context.Context, commentID string, pagination model.PaginationInput) (*model.CommentsConnection, error) {
-	panic("not implemented")
+	return r.svc.GetReplies(pagination, commentID, nil)
+}
 
+func (r *queryResolver) GetComments(ctx context.Context, postID string, pagination model.PaginationInput) (*model.CommentsConnection, error) {
+	return r.svc.GetComments(pagination, postID)
 }

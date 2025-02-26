@@ -26,5 +26,5 @@ func (r *commentResolver) Parent(ctx context.Context, obj *model.Comment) (*mode
 }
 
 func (r *commentResolver) Replies(ctx context.Context, obj *model.Comment, pagination model.PaginationInput) (*model.CommentsConnection, error) {
-	return r.svc.GetReplies(pagination, obj.ID)
+	return r.svc.GetReplies(pagination, obj.ID, &obj.TotalReplies)
 }
